@@ -16,35 +16,7 @@ namespace vizsgaController.Controllers
         {
             _model = model;
         }
-        [HttpGet]
-        public ActionResult<IEnumerable<PostFeedDTO>> GetFeed([FromQuery] int page = 0, [FromQuery] int pageSize = 10, [FromQuery] string? category = null)
-        {
-            try
-            {
-                return Ok(_model.GetFeed(page, pageSize, category));
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
-            catch (Exception)
-            {
-                return BadRequest("Hiba történt");
-            }
-        }
-
-        [HttpGet("{id:int}")]
-        public ActionResult<PostFeedDTO> GetPostById(int id)
-        {
-            var post = _model.GetPostById(id);
-            if (post == null) return NotFound();
-            return Ok(post);
-        }
-        [HttpGet("{id:int}/comments")]
-        public ActionResult<IEnumerable<CommentResponseDTO>> GetPostComments(int id)
-        {
-            return Ok(_model.GetPostComments(id));
-        }
+        
         [HttpGet("getallusers")]
         public async Task<ActionResult<IEnumerable<DisplayAllUserDTO>>> GetAllUsers()
         {

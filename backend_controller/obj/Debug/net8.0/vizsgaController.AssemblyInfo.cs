@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("vizsgaController")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3292ac7ba5ab73b3c10ced23e24a5be0137fb0d5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b8b7defef70e4012914962d20f7631063789d7b7")]
 [assembly: System.Reflection.AssemblyProductAttribute("vizsgaController")]
 [assembly: System.Reflection.AssemblyTitleAttribute("vizsgaController")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -570,53 +570,6 @@ namespace ControllerTesting
         ///////////////////////////////////////////
 
         [Fact]
-        public async Task GetFeed_Valid()
-        {
-            var result = _model.GetFeed(1, 10, "All").ToList();
-            Assert.NotNull(result);
-            Assert.True(result.Count() <= 10);
-            Assert.All(result, x => Assert.NotNull(x.Title));
-        }
-
-        [Fact]
-        public async Task GetFeed_InvalidPage()
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() => _model.GetFeed(-1, 10, "All").ToList());
-        }
-
-        ///////////////////////////////////////////
-
-        [Fact]
-        public async Task GetPostById_Valid()
-        {
-            var result = _model.GetPostById(1);
-            Assert.NotNull(result);
-        }
-
-        [Fact]
-        public async Task GetPostById_InvalidId()
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() => _model.GetPostById(-1));
-        }
-
-        ///////////////////////////////////////////
-
-        [Fact]
-        public async Task GetPostComments_Valid()
-        {
-            var result = _model.GetPostComments(1).ToList();
-            Assert.NotNull(result);
-        }
-
-        [Fact]
-        public async Task GetPostComments_InvalidId()
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() => _model.GetPostComments(-1).ToList());
-        }
-
-        ///////////////////////////////////////////
-
-        [Fact]
         public async Task GetAllUsers_Valid()
         {
             var result = _model.GetAllUsers().ToList();

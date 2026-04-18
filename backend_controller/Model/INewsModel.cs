@@ -4,10 +4,6 @@ namespace vizsgaController.Model
 {
     public interface INewsModel
     {
-        // feed / post detail
-        public IEnumerable<PostFeedDTO> GetFeed(int page, int pageSize, string? category);
-        public PostFeedDTO? GetPostById(int id);
-        public IEnumerable<CommentResponseDTO> GetPostComments(int id);
 
         //for loading
         public IEnumerable<DisplayAllUserDTO> GetAllUsers();

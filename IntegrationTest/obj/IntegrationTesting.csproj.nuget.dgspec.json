@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\IntegrationTest\\IntegrationTesting.csproj": {}
+    "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\IntegrationTest\\IntegrationTesting.csproj": {}
   },
   "projects": {
-    "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\backend_controller\\vizsgaController.csproj": {
+    "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\backend_controller\\vizsgaController.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\backend_controller\\vizsgaController.csproj",
+        "projectUniqueName": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\backend_controller\\vizsgaController.csproj",
         "projectName": "vizsgaController",
-        "projectPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\backend_controller\\vizsgaController.csproj",
+        "projectPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\backend_controller\\vizsgaController.csproj",
         "packagesPath": "C:\\Users\\msi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\backend_controller\\obj\\",
+        "outputPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\backend_controller\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\msi\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -44,6 +44,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.15, )"
+            },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
@@ -82,14 +86,14 @@
         }
       }
     },
-    "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\IntegrationTest\\IntegrationTesting.csproj": {
+    "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\IntegrationTest\\IntegrationTesting.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\IntegrationTest\\IntegrationTesting.csproj",
+        "projectUniqueName": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\IntegrationTest\\IntegrationTesting.csproj",
         "projectName": "IntegrationTesting",
-        "projectPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\IntegrationTest\\IntegrationTesting.csproj",
+        "projectPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\IntegrationTest\\IntegrationTesting.csproj",
         "packagesPath": "C:\\Users\\msi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\IntegrationTest\\obj\\",
+        "outputPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\IntegrationTest\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\msi\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -104,8 +108,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\backend_controller\\vizsgaController.csproj": {
-                "projectPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\vizsgaprojekt\\backend_controller\\vizsgaController.csproj"
+              "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\backend_controller\\vizsgaController.csproj": {
+                "projectPath": "C:\\Users\\msi\\Documents\\School\\Szakvizsga\\mobile-forum\\backend_controller\\vizsgaController.csproj"
               }
             }
           }
@@ -132,7 +136,7 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.11, )"
+              "version": "[9.0.15, )"
             },
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",

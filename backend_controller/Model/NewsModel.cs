@@ -30,75 +30,7 @@ namespace vizsgaController.Model
             return reportStatus ?? ReportStatusOpen;
         }
 
-        //csabi methods???
-        public IEnumerable<PostFeedDTO> GetFeed(int page, int pageSize, string? category)
-        {
-            if (page < 0 || pageSize <= 0) throw new ArgumentOutOfRangeException("Invalid pagination values.");
-            return _context.Posts
-                .AsNoTracking()
-                .Include(x => x.User)
-                .Include(x => x.Category)
-                .Include(x => x.Comments)
-                .Where(x => category == null || (x.Category != null && x.Category.Categoryname == category))
-                .OrderByDescending(x => x.Created_at)
-                .Skip(page * pageSize)
-                .Take(pageSize)
-                .Select(x => new PostFeedDTO
-                {
-                    PostID = x.PostID,
-                    Title = x.Title,
-                    Content = x.Content,
-                    Created_at = x.Created_at,
-                    Votes = x.Votes,
-                    ImagePath = x.ImagePath,
-                    User = x.User == null ? null : new UserSummaryDTO { Username = x.User.Username },
-                    Category = x.Category == null ? null : new CategorySummaryDTO { Categoryname = x.Category.Categoryname },
-                    Comments = x.Comments.Select(c => new CommentRefDTO { CommentID = c.CommentID }).ToList()
-                })
-                .ToList();
-        }
-
-        public PostFeedDTO? GetPostById(int id)
-        {
-            if (id < 0) throw new ArgumentOutOfRangeException(nameof(id), "ID can't be negative");
-            return _context.Posts
-                .AsNoTracking()
-                .Include(x => x.User)
-                .Include(x => x.Category)
-                .Include(x => x.Comments)
-                .Where(x => x.PostID == id)
-                .Select(x => new PostFeedDTO
-                {
-                    PostID = x.PostID,
-                    Title = x.Title,
-                    Content = x.Content,
-                    Created_at = x.Created_at,
-                    Votes = x.Votes,
-                    ImagePath = x.ImagePath,
-                    User = x.User == null ? null : new UserSummaryDTO { Username = x.User.Username },
-                    Category = x.Category == null ? null : new CategorySummaryDTO { Categoryname = x.Category.Categoryname },
-                    Comments = x.Comments.Select(c => new CommentRefDTO { CommentID = c.CommentID }).ToList()
-                })
-                .FirstOrDefault();
-        }
-
-        public IEnumerable<CommentResponseDTO> GetPostComments(int id)
-        {
-            if (id < 0) throw new ArgumentOutOfRangeException(nameof(id), "ID can't be negative");
-            return _context.Comments
-                .AsNoTracking()
-                .Include(x => x.User)
-                .Where(x => x.PostID == id)
-                .OrderBy(x => x.CommentCreated_at)
-                .Select(x => new CommentResponseDTO
-                {
-                    CommentID = x.CommentID,
-                    Commentcontent = x.CommentContent,
-                    User = x.User == null ? null : new UserSummaryDTO { Username = x.User.Username },
-                    Created_at = x.CommentCreated_at
-                })
-                .ToList();
-        }
+        
         //fetches
         public IEnumerable<DisplayAllUserDTO> GetAllUsers()
         {

@@ -62,16 +62,10 @@ public partial class App : Application
     }
     public static string GetBackendUrl()
     {
-        try
-        {
-            // For Android emulator, use 10.0.2.2 alias
-            // This works because the app runs in a context where we know the platform
-            var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-            if (osDescription.Contains("Android"))
-                return "http://10.0.2.2:3070";
-        }
-        catch { }
-    
-        return "http://fcsab.ddns.net:3070";
+        #if ANDROID && DEBUG
+                return "http://10.0.2.2:3070"; 
+        #else
+                return "http://localhost:3070";
+        #endif
     }
 }
