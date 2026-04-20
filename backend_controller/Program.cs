@@ -19,9 +19,11 @@ namespace vizsgaController
             builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
             builder.Logging.AddFilter("System", LogLevel.Warning);
             builder.Logging.AddFilter("Microsoft.Hosting.Lifetime", LogLevel.Information);
-
-            builder.WebHost.UseUrls("http://0.0.0.0:3070");
-            builder.Services.AddDbContextPool<NewsDbContext>(options => { options.UseNpgsql(builder.Configuration.GetConnectionString("ForumDb")); });
+            
+            builder.Services.AddDbContextPool<NewsDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("ForumDb"));
+            });
             // Add services to the container.
             builder.Services.AddTransient<IUserModel, UserModel>();
             builder.Services.AddTransient<INewsModel, NewsModel>();

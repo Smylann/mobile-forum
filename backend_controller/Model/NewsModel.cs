@@ -7,27 +7,10 @@ namespace vizsgaController.Model
     public class NewsModel : INewsModel
     {
         private readonly NewsDbContext _context;
-        private const string ReportStatusOpen = "Open";
-        private const string ReportStatusClosedNotDeleted = "Closed (not deleted)";
-        private const string ReportStatusClosedDeleted = "Closed (deleted)";
 
         public NewsModel(NewsDbContext context)
         {
             _context = context;
-        }
-
-        private static bool IsOpenReportStatus(string? reportStatus)
-        {
-            return string.Equals(reportStatus, ReportStatusOpen, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(reportStatus, "Pending", StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static string NormalizeReportStatus(string? reportStatus)
-        {
-            if (IsOpenReportStatus(reportStatus)) return ReportStatusOpen;
-            if (string.Equals(reportStatus, ReportStatusClosedNotDeleted, StringComparison.OrdinalIgnoreCase)) return ReportStatusClosedNotDeleted;
-            if (string.Equals(reportStatus, ReportStatusClosedDeleted, StringComparison.OrdinalIgnoreCase)) return ReportStatusClosedDeleted;
-            return reportStatus ?? ReportStatusOpen;
         }
 
         
@@ -663,41 +646,12 @@ namespace vizsgaController.Model
                 {
                     UserID = x.UserID,
                     PostID = x.PostID,
-                    PostTitle = _context.Posts.Where(k => k.PostID == x.PostID).Select(k => k.Title).FirstOrDefault() ?? "(deleted post)",
+                    PostTitle = _context.Posts.Where(k => k.PostID == x.PostID).Select(k => k.Title).FirstOrDefault() ??
+                                "(deleted post)",
                     Reason = x.ReportReason,
                     Created_at = x.ReportCreated_at,
                     ReportStatus = x.ReportStatus
-                })
-                .AsEnumerable()
-                .Select(x =>
-                {
-                    x.ReportStatus = NormalizeReportStatus(x.ReportStatus);
-                    return x;
                 });
-        }
-        public IEnumerable<AdminReportDTO> GetAllReports()
-        {
-            return _context.Reports
-                .AsNoTracking()
-                .OrderByDescending(x => x.ReportCreated_at)
-                .Select(x => new AdminReportDTO
-                {
-                    ReportID = x.ReportID,
-                    PostID = x.PostID,
-                    PostTitle = _context.Posts.Where(p => p.PostID == x.PostID).Select(p => p.Title).FirstOrDefault() ?? "(deleted post)",
-                    ReporterUserID = x.UserID,
-                    ReporterUsername = _context.Users.Where(u => u.UserID == x.UserID).Select(u => u.Username).FirstOrDefault() ?? "(deleted user)",
-                    Reason = x.ReportReason,
-                    Created_at = x.ReportCreated_at,
-                    ReportStatus = x.ReportStatus
-                })
-                .AsEnumerable()
-                .Select(x =>
-                {
-                    x.ReportStatus = NormalizeReportStatus(x.ReportStatus);
-                    return x;
-                })
-                .ToList();
         }
         public async Task CreateReport(ReportDTO source)
         {
@@ -711,11 +665,6 @@ namespace vizsgaController.Model
             if (post == null) throw new KeyNotFoundException("Post not found");
 
             if (string.IsNullOrWhiteSpace(source.reportreason)) throw new ArgumentException("Reason can't be empty");
-            var alreadyOpenReport = await _context.Reports.AnyAsync(x =>
-                x.UserID == source.userID
-                && x.PostID == source.postID
-                && (x.ReportStatus == ReportStatusOpen || x.ReportStatus == "Pending"));
-            if (alreadyOpenReport) throw new InvalidOperationException("You already have an open report for this post");
 
             using var trx = _context.Database.BeginTransaction();
             _context.Reports.Add(new Report
@@ -723,8 +672,7 @@ namespace vizsgaController.Model
                 PostID = source.postID,
                 UserID = source.userID,
                 ReportReason = source.reportreason,
-                ReportCreated_at = DateTime.UtcNow,
-                ReportStatus = ReportStatusOpen
+                ReportCreated_at = DateTime.UtcNow
             });
 
 
@@ -733,52 +681,7 @@ namespace vizsgaController.Model
 
             await Task.CompletedTask;
         }
-
-        public async Task ResolveReportKeepPost(int reportId)
-        {
-            if (reportId <= 0) throw new ArgumentOutOfRangeException(nameof(reportId), "ID can't be 0 or negative");
-
-            var report = await _context.Reports.FirstOrDefaultAsync(x => x.ReportID == reportId);
-            if (report == null) throw new KeyNotFoundException("Report not found");
-            if (!IsOpenReportStatus(report.ReportStatus)) throw new InvalidOperationException("Report is already closed");
-
-            using var trx = _context.Database.BeginTransaction();
-            report.ReportStatus = ReportStatusClosedNotDeleted;
-            _context.SaveChanges();
-            trx.Commit();
-
-            await Task.CompletedTask;
-        }
-
-        public async Task ResolveReportDeletePost(int reportId)
-        {
-            if (reportId <= 0) throw new ArgumentOutOfRangeException(nameof(reportId), "ID can't be 0 or negative");
-
-            var report = await _context.Reports.FirstOrDefaultAsync(x => x.ReportID == reportId);
-            if (report == null) throw new KeyNotFoundException("Report not found");
-            if (!IsOpenReportStatus(report.ReportStatus)) throw new InvalidOperationException("Report is already closed");
-
-            using var trx = _context.Database.BeginTransaction();
-
-            var targetPostId = report.PostID;
-            var post = await _context.Posts.FirstOrDefaultAsync(x => x.PostID == targetPostId);
-            if (post != null)
-            {
-                _context.Posts.Remove(post);
-            }
-
-            var openReportsOnPost = await _context.Reports
-                .Where(x => x.PostID == targetPostId && (x.ReportStatus == ReportStatusOpen || x.ReportStatus == "Pending"))
-                .ToListAsync();
-            foreach (var openReport in openReportsOnPost)
-            {
-                openReport.ReportStatus = ReportStatusClosedDeleted;
-            }
-
-            _context.SaveChanges();
-            trx.Commit();
-
-            await Task.CompletedTask;
-        }
+        
+        
     }
 }

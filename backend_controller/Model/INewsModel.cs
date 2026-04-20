@@ -39,11 +39,7 @@ namespace vizsgaController.Model
         public Task DeleteCategory(int id);
         //reports
         public IEnumerable<OwnReports> GetOwnReports(int id);
-        public IEnumerable<AdminReportDTO> GetAllReports();
         public Task CreateReport(ReportDTO source);
-        public Task ResolveReportKeepPost(int reportId);
-        public Task ResolveReportDeletePost(int reportId);
-        
 
     }
 }
