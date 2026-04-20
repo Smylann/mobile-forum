@@ -10,7 +10,7 @@
 
 	<Grid RowDefinitions="Auto, *">
 		<!-- HEADER -->
-		<Border Grid.Row="0" Padding="15,40,15,20" Background="#1E1F35">
+		<Border Grid.Row="0" Padding="15,40,15,20" Background="#1A1B2E">
 			<Grid ColumnDefinitions="Auto, *">
 				<Button Grid.Column="0"
 						Command="{Binding CloseCommand}"
@@ -23,74 +23,43 @@
 						  Width="24" Height="24"
 						  Stretch="Uniform"/>
 				</Button>
-				<TextBlock Grid.Column="1"
-						   Text="About Us"
-						   TextAlignment="Center"
-						   FontSize="24"
-						   Foreground="White"
-						   FontWeight="Bold"
-						   VerticalAlignment="Center"
-						   Margin="-15,0,0,0"/>
+				
 			</Grid>
 		</Border>
 
 		<!-- CONTENT -->
 		<ScrollViewer Grid.Row="1">
 			<StackPanel Spacing="25" Margin="20">
+				<TextBlock Text="Creator"
+				           TextAlignment="Center"
+				           FontSize="24"
+				           Foreground="White"
+				           Background="#1A1B2E"
+				           FontWeight="Bold"
+				           VerticalAlignment="Center"
+				           Margin="-15,0,0,0"/>
+				<Border Background="#1E1F35" 
+				        BorderBrush="#30314D" 
+				        BorderThickness="1" 
+				        CornerRadius="12" 
+				        Padding="16">
+					<StackPanel Spacing="6">
+						<TextBlock Text="Pelyvás Milán" FontSize="18" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+					</StackPanel>
+				</Border>
 				
-				<!-- Authors Section -->
-				<StackPanel Spacing="12">
-					<TextBlock Text="THE TEAM" 
-							   FontSize="13" 
-							   FontWeight="Bold" 
-							   Foreground="#4A90E2" 
-							   LetterSpacing="1.5"/>
-
-					<!-- Pelyvás Milán -->
-					<Border Background="#1E1F35" 
-							BorderBrush="#30314D" 
-							BorderThickness="1" 
-							CornerRadius="12" 
-							Padding="16">
-						<StackPanel Spacing="6">
-							<TextBlock Text="Pelyvás Milán" FontSize="18" FontWeight="Bold" Foreground="White"/>
-							<TextBlock Text="Kontroller, DB tweak, Mobil fejlesztés, Modell írás" 
-									   FontSize="14" Foreground="#B0B3B8" TextWrapping="Wrap"/>
-						</StackPanel>
-					</Border>
-
-					<!-- Sztanyik Zoltán -->
-					<Border Background="#1E1F35" 
-							BorderBrush="#30314D" 
-							BorderThickness="1" 
-							CornerRadius="12" 
-							Padding="16">
-						<StackPanel Spacing="6">
-							<TextBlock Text="Sztanyik Zoltán" FontSize="18" FontWeight="Bold" Foreground="White"/>
-							<TextBlock Text="Dokumentáció, Kontroller, Integrációs tesztek, DB alap, példátlan lacafaca" 
-									   FontSize="14" Foreground="#B0B3B8" TextWrapping="Wrap"/>
-						</StackPanel>
-					</Border>
-
-					<!-- Faragó Csaba -->
-					<Border Background="#1E1F35" 
-							BorderBrush="#30314D" 
-							BorderThickness="1" 
-							CornerRadius="12" 
-							Padding="16">
-						<StackPanel Spacing="6">
-							<TextBlock Text="Faragó Csaba" FontSize="18" FontWeight="Bold" Foreground="White"/>
-							<TextBlock Text="Unit Tesztek, Frontend, DB tweak, Szerver hostolás" 
-									   FontSize="14" Foreground="#B0B3B8" TextWrapping="Wrap"/>
-						</StackPanel>
-					</Border>
-				</StackPanel>
-
+				<TextBlock Grid.Column="1"
+				           Text="SZÓSZ"
+				           TextAlignment="Center"
+				           FontSize="24"
+				           Foreground="White"
+				           FontWeight="Bold"
+				           VerticalAlignment="Center"
+				           Margin="-15,0,0,0"/>
 				<!-- Footer / Source Section -->
 				<Border Background="#1E1F35" CornerRadius="12" Padding="20">
 					<StackPanel Spacing="10" HorizontalAlignment="Center">
-						<TextBlock Text="SZÓSZ" FontSize="11" FontWeight="Bold" Foreground="#4A90E2" HorizontalAlignment="Center"/>
-						<TextBlock Text="https://github.com/sztanyikz2/vizsgaprojekt"
+						<TextBlock Text="https://github.com/Smylann/mobile-forum.git"
 								   Foreground="White"
 								   FontSize="14"
 								   TextDecorations="Underline"
@@ -99,7 +68,7 @@
 								   HorizontalAlignment="Center"
 								   TextAlignment="Center"/>
 						<Separator Background="#30314D" Margin="0,10"/>
-						<TextBlock Text="A hostolás Csibcsub szerverén történik"
+						<TextBlock Text="A hostolás a saját szerveremen történik"
 								   FontSize="12"
 								   Foreground="#B0B3B8" 
 								   TextWrapping="Wrap" 
