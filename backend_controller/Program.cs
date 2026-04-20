@@ -49,7 +49,7 @@ namespace vizsgaController
             });
 
             var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                                 ?? new[] { "http://localhost:5500", "https://fcsab.ddns.net" };
+                                 ?? new[] { "http://localhost:5500", "http://smylann.runasp.net" };
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("FrontendPolicy", policy =>

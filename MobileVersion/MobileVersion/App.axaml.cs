@@ -65,7 +65,7 @@ public partial class App : Application
         #if ANDROID && DEBUG
                 return "http://10.0.2.2:3070"; 
         #else
-                return "http://localhost:3070";
+                return "http://smylann.runasp.net/";
         #endif
     }
 }
