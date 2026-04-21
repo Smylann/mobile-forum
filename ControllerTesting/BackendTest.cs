@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Hosting;
 using vizsgaController.Dtos;
 using vizsgaController.Model;
 using vizsgaController.Persistence;
@@ -8,11 +9,12 @@ namespace ControllerTesting
     {
         private readonly NewsModel _model;
         private readonly NewsDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
         public BackendTest()
         {
             _context = DbContextFactory.Create();
-            _model = new NewsModel(_context);
+            _model = new NewsModel(_context, _env);
         }
 
         [Fact]

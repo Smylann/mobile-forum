@@ -7,10 +7,12 @@ namespace vizsgaController.Model
     public class NewsModel : INewsModel
     {
         private readonly NewsDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public NewsModel(NewsDbContext context)
+        public NewsModel(NewsDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         
@@ -366,9 +368,14 @@ namespace vizsgaController.Model
                     if (!allowedExtensions.Contains(extension.ToLowerInvariant()))
                         throw new ArgumentException("Invalid file type. Allowed: jpg, jpeg, png, gif, webp");
 
-                    // 5. Create uploads folder
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-                    Directory.CreateDirectory(uploadsFolder);
+                    // 5. Create uploads folder inside wwwroot using IWebHostEnvironment
+                    var webRootPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                    var uploadsFolder = Path.Combine(webRootPath, "uploads");
+    
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
 
                     // 6. Generate unique filename
                     var uniqueFileName = $"{Guid.NewGuid()}{extension}";

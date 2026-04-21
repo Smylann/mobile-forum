@@ -73,7 +73,7 @@ namespace MobileVersion.ViewModels
             RepStatus = string.Empty;
             VoteStatus = string.Empty;
             ImageUrl = !string.IsNullOrEmpty(post.ImagePath) 
-                ? $"{App.GetBackendUrl()}{post.ImagePath}"  
+                ? $"{App.GetBackendUrl().TrimEnd('/')}{post.ImagePath}"  
                 : null;
             _ = InitializeComments(); //loads comments on new post open
             _ = InitializeColors(); //loads interaction colors on new post open
