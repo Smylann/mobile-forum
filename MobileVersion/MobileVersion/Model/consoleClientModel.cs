@@ -161,5 +161,11 @@ public class consoleClientModel
         var resp = await _httpClient.PostAsJsonAsync($"api/news/create_report", report);
         resp.EnsureSuccessStatusCode();
     }
-   
+    /***************************
+     *                         *
+     *                         *
+     *    ADMIN INTERACTIONS   *
+     *                         *
+     *                         *
+     ***************************/
 }

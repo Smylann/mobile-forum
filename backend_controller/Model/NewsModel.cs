@@ -247,89 +247,6 @@ namespace vizsgaController.Model
                 ImagePath = x.ImagePath
             });
         }
-
-        public async Task DeleteUsers(int id)
-        {
-            if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "ID can't be 0 or negative");
-
-            var user = await _context.Users
-                .Include(x => x.Posts)
-                .Include(x => x.Favourites)
-                .Include(x => x.Upvoted_Posts)
-                .Include(x => x.Downvoted_Posts)
-                .FirstOrDefaultAsync(x => x.UserID == id);
-            if (user is null) throw new KeyNotFoundException($"User not found with given ID: {id}.");
-
-            using var trx = await _context.Database.BeginTransactionAsync();
-
-            var postIds = user.Posts.Select(p => p.PostID).ToList();
-
-            // 1. Delete all reports by this user or on their posts (no cascade configured on Report)
-            var reports = await _context.Reports
-                .Where(r => r.UserID == id || postIds.Contains(r.PostID))
-                .ToListAsync();
-            _context.Reports.RemoveRange(reports);
-            await _context.SaveChangesAsync();
-
-            // 2. Remove the user's posts from every other user's join tables
-            //    (UserFavourites, UserUpvotes, UserDownvotes) — cascade won't reach these
-            if (postIds.Any())
-            {
-                var otherUsers = await _context.Users
-                    .Include(u => u.Favourites)
-                    .Include(u => u.Upvoted_Posts)
-                    .Include(u => u.Downvoted_Posts)
-                    .Where(u => u.UserID != id && (
-                        u.Favourites.Any(p => postIds.Contains(p.PostID)) ||
-                        u.Upvoted_Posts.Any(p => postIds.Contains(p.PostID)) ||
-                        u.Downvoted_Posts.Any(p => postIds.Contains(p.PostID))))
-                    .ToListAsync();
-
-                foreach (var other in otherUsers)
-                {
-                    foreach (var post in other.Favourites.Where(p => postIds.Contains(p.PostID)).ToList())
-                        other.Favourites.Remove(post);
-                    foreach (var post in other.Upvoted_Posts.Where(p => postIds.Contains(p.PostID)).ToList())
-                        other.Upvoted_Posts.Remove(post);
-                    foreach (var post in other.Downvoted_Posts.Where(p => postIds.Contains(p.PostID)).ToList())
-                        other.Downvoted_Posts.Remove(post);
-                }
-                await _context.SaveChangesAsync();
-            }
-
-            // 3. Clear this user's own join table entries
-            user.Favourites.Clear();
-            user.Upvoted_Posts.Clear();
-            user.Downvoted_Posts.Clear();
-            await _context.SaveChangesAsync();
-
-            // 4. Remove the user — cascade handles their Posts and Comments
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            await trx.CommitAsync();
-        }
-        public async Task ModifyUsers(ModifyUserDTO dto)
-        {
-            if (dto is null) throw new ArgumentNullException("DTO nonexistant", nameof(dto));
-
-            if (dto.id <= 0) throw new ArgumentOutOfRangeException("ID can't be 0 or negative", nameof(dto.id));
-
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserID == dto.id);
-            if (user == null) throw new KeyNotFoundException("User not found");
-
-            if (string.IsNullOrWhiteSpace(dto.name)) throw new ArgumentNullException("Username can't be empty");
-
-            var userexists = await _context.Users.AnyAsync(x => x.Username == dto.name);
-            if (userexists) throw new InvalidOperationException($"Username exists: '{dto.name}'");
-
-            using var trx = _context.Database.BeginTransaction();
-            user.Username = dto.name;
-            _context.SaveChanges();
-            trx.Commit();
-
-            await Task.CompletedTask;
-        }
         public async Task CreatePost(PostDTO source)
         {
             if (source is null) throw new ArgumentNullException("DTO nonexistant", nameof(source));
@@ -416,25 +333,6 @@ namespace vizsgaController.Model
 
             await Task.CompletedTask;
         }
-        public async Task DeletePost(int id)
-        {
-            if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "ID can't be 0 or negative");
-            var post = await _context.Posts.FirstOrDefaultAsync(x => x.PostID == id);
-            if (post == null) throw new KeyNotFoundException("Post not found");
-
-            int before = _context.Posts.Count();
-
-            using var trx = _context.Database.BeginTransaction();
-
-            _context.Posts.Remove(post);
-            _context.SaveChanges();
-            trx.Commit();
-
-            int after = _context.Posts.Count();
-            if (before - after != 1) throw new InvalidOperationException("Post wasn't removed");
-
-            await Task.CompletedTask;
-        }
         public async Task DeleteOwnPost(DeleteOwnPostDTO dto)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.UserID == dto.userId);
@@ -461,7 +359,6 @@ namespace vizsgaController.Model
 
             await Task.CompletedTask;
         }
-
         public async Task FavouritePost(FavouritePostDTO favpost)
         {
             var user = await _context.Users
@@ -590,6 +487,163 @@ namespace vizsgaController.Model
 
             await Task.CompletedTask;
         }
+        
+        public IEnumerable<OwnReports> GetOwnReports(int id)
+        {
+            if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "ID can't be 0 or negative");
+            if (!_context.Users.Any(x => x.UserID == id)) throw new KeyNotFoundException($"User not found with given ID: {id}.");
+
+            return _context.Reports
+                .Where(x => x.UserID == id)
+                .Select(x => new OwnReports
+                {
+                    UserID = x.UserID,
+                    PostID = x.PostID,
+                    PostTitle = _context.Posts.Where(k => k.PostID == x.PostID).Select(k => k.Title).FirstOrDefault() ??
+                                "(deleted post)",
+                    Reason = x.ReportReason,
+                    Created_at = x.ReportCreated_at,
+                    ReportStatus = x.ReportStatus
+                });
+        }
+        public async Task CreateReport(ReportDTO source)
+        {
+            if (source is null) throw new ArgumentNullException("DTO nonexistant", nameof(source));
+
+            if (source.userID <= 0 || source.postID <= 0) throw new ArgumentOutOfRangeException("ID can't be 0 or negative");
+
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserID == source.userID);
+            if (user == null) throw new KeyNotFoundException("User not found");
+            var post = await _context.Posts.FirstOrDefaultAsync(x => x.PostID == source.postID);
+            if (post == null) throw new KeyNotFoundException("Post not found");
+
+            if (string.IsNullOrWhiteSpace(source.reportreason)) throw new ArgumentException("Reason can't be empty");
+
+            using var trx = _context.Database.BeginTransaction();
+            _context.Reports.Add(new Report
+            {
+                PostID = source.postID,
+                UserID = source.userID,
+                ReportReason = source.reportreason,
+                ReportCreated_at = DateTime.UtcNow
+            });
+
+
+            _context.SaveChanges();
+            trx.Commit();
+
+            await Task.CompletedTask;
+        }
+        public async Task ModifyUsers(ModifyUserDTO dto)
+        {
+            if (dto is null) throw new ArgumentNullException("DTO nonexistant", nameof(dto));
+
+            if (dto.id <= 0) throw new ArgumentOutOfRangeException("ID can't be 0 or negative", nameof(dto.id));
+
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserID == dto.id);
+            if (user == null) throw new KeyNotFoundException("User not found");
+
+            if (string.IsNullOrWhiteSpace(dto.name)) throw new ArgumentNullException("Username can't be empty");
+
+            var userexists = await _context.Users.AnyAsync(x => x.Username == dto.name);
+            if (userexists) throw new InvalidOperationException($"Username exists: '{dto.name}'");
+
+            using var trx = _context.Database.BeginTransaction();
+            user.Username = dto.name;
+            _context.SaveChanges();
+            trx.Commit();
+
+            await Task.CompletedTask;
+        }
+        /***************************
+         *                         *
+         *                         *
+         *      ADMIN METHODS      *
+         *                         *
+         *                         *
+         ***************************/
+        
+        public async Task DeleteUsers(int id)
+        {
+            if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "ID can't be 0 or negative");
+
+            var user = await _context.Users
+                .Include(x => x.Posts)
+                .Include(x => x.Favourites)
+                .Include(x => x.Upvoted_Posts)
+                .Include(x => x.Downvoted_Posts)
+                .FirstOrDefaultAsync(x => x.UserID == id);
+            if (user is null) throw new KeyNotFoundException($"User not found with given ID: {id}.");
+
+            using var trx = await _context.Database.BeginTransactionAsync();
+
+            var postIds = user.Posts.Select(p => p.PostID).ToList();
+
+            // 1. Delete all reports by this user or on their posts (no cascade configured on Report)
+            var reports = await _context.Reports
+                .Where(r => r.UserID == id || postIds.Contains(r.PostID))
+                .ToListAsync();
+            _context.Reports.RemoveRange(reports);
+            await _context.SaveChangesAsync();
+
+            // 2. Remove the user's posts from every other user's join tables
+            //    (UserFavourites, UserUpvotes, UserDownvotes) — cascade won't reach these
+            if (postIds.Any())
+            {
+                var otherUsers = await _context.Users
+                    .Include(u => u.Favourites)
+                    .Include(u => u.Upvoted_Posts)
+                    .Include(u => u.Downvoted_Posts)
+                    .Where(u => u.UserID != id && (
+                        u.Favourites.Any(p => postIds.Contains(p.PostID)) ||
+                        u.Upvoted_Posts.Any(p => postIds.Contains(p.PostID)) ||
+                        u.Downvoted_Posts.Any(p => postIds.Contains(p.PostID))))
+                    .ToListAsync();
+
+                foreach (var other in otherUsers)
+                {
+                    foreach (var post in other.Favourites.Where(p => postIds.Contains(p.PostID)).ToList())
+                        other.Favourites.Remove(post);
+                    foreach (var post in other.Upvoted_Posts.Where(p => postIds.Contains(p.PostID)).ToList())
+                        other.Upvoted_Posts.Remove(post);
+                    foreach (var post in other.Downvoted_Posts.Where(p => postIds.Contains(p.PostID)).ToList())
+                        other.Downvoted_Posts.Remove(post);
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            // 3. Clear this user's own join table entries
+            user.Favourites.Clear();
+            user.Upvoted_Posts.Clear();
+            user.Downvoted_Posts.Clear();
+            await _context.SaveChangesAsync();
+
+            // 4. Remove the user — cascade handles their Posts and Comments
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            await trx.CommitAsync();
+        }
+        
+        public async Task DeletePost(int id)
+        {
+            if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "ID can't be 0 or negative");
+            var post = await _context.Posts.FirstOrDefaultAsync(x => x.PostID == id);
+            if (post == null) throw new KeyNotFoundException("Post not found");
+
+            int before = _context.Posts.Count();
+
+            using var trx = _context.Database.BeginTransaction();
+
+            _context.Posts.Remove(post);
+            _context.SaveChanges();
+            trx.Commit();
+
+            int after = _context.Posts.Count();
+            if (before - after != 1) throw new InvalidOperationException("Post wasn't removed");
+
+            await Task.CompletedTask;
+        }
         public async Task DeleteComments(int id)
         {
             var comment = await _context.Comments.FirstOrDefaultAsync(x => x.CommentID == id);
@@ -642,52 +696,7 @@ namespace vizsgaController.Model
 
             await Task.CompletedTask;
         }
-        public IEnumerable<OwnReports> GetOwnReports(int id)
-        {
-            if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "ID can't be 0 or negative");
-            if (!_context.Users.Any(x => x.UserID == id)) throw new KeyNotFoundException($"User not found with given ID: {id}.");
 
-            return _context.Reports
-                .Where(x => x.UserID == id)
-                .Select(x => new OwnReports
-                {
-                    UserID = x.UserID,
-                    PostID = x.PostID,
-                    PostTitle = _context.Posts.Where(k => k.PostID == x.PostID).Select(k => k.Title).FirstOrDefault() ??
-                                "(deleted post)",
-                    Reason = x.ReportReason,
-                    Created_at = x.ReportCreated_at,
-                    ReportStatus = x.ReportStatus
-                });
-        }
-        public async Task CreateReport(ReportDTO source)
-        {
-            if (source is null) throw new ArgumentNullException("DTO nonexistant", nameof(source));
-
-            if (source.userID <= 0 || source.postID <= 0) throw new ArgumentOutOfRangeException("ID can't be 0 or negative");
-
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserID == source.userID);
-            if (user == null) throw new KeyNotFoundException("User not found");
-            var post = await _context.Posts.FirstOrDefaultAsync(x => x.PostID == source.postID);
-            if (post == null) throw new KeyNotFoundException("Post not found");
-
-            if (string.IsNullOrWhiteSpace(source.reportreason)) throw new ArgumentException("Reason can't be empty");
-
-            using var trx = _context.Database.BeginTransaction();
-            _context.Reports.Add(new Report
-            {
-                PostID = source.postID,
-                UserID = source.userID,
-                ReportReason = source.reportreason,
-                ReportCreated_at = DateTime.UtcNow
-            });
-
-
-            _context.SaveChanges();
-            trx.Commit();
-
-            await Task.CompletedTask;
-        }
         
         
     }
