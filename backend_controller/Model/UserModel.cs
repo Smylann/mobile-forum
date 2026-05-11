@@ -131,16 +131,6 @@ namespace vizsgaController.Model
             }
         }
         */
-
-
-        public IEnumerable<UserDTO> GetUsers()
-        {
-            return _context.Users.Select(x => new UserDTO
-            {
-                userID = x.UserID,
-                username = x.Username,
-                role = x.Role
-            }).OrderBy(x => x.userID);
-        }
+        
     }
 }

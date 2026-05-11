@@ -10,7 +10,9 @@ using MobileVersion.Views;
 using System.Security.Cryptography.X509Certificates;
 using MobileVersion.Model;
 using Avalonia.Metadata;
-using MobileVersion.Models;
+using MainView = MobileVersion.Views.Homepage.MainView;
+using MainViewModel = MobileVersion.ViewModels.Homepage.MainViewModel;
+using MainWindow = MobileVersion.Views.Homepage.MainWindow;
 
 namespace MobileVersion;
 

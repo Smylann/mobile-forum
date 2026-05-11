@@ -23,5 +23,69 @@
 
   <ItemGroup>
     <Folder Include="Assets\Fonts\" />
+    <Folder Include="DTOs\AdminInterface\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Homepage\AboutUsPage.axaml.cs">
+      <DependentUpon>AboutUsPage.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Homepage\CreatePostPage.axaml.cs">
+      <DependentUpon>CreatePostPage.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Homepage\LoginPage.axaml.cs">
+      <DependentUpon>LoginPage.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Homepage\PostDetails.axaml.cs">
+      <DependentUpon>PostDetails.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Homepage\UserDetails.axaml.cs">
+      <DependentUpon>UserDetails.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\User\DislikedPostsPage.axaml.cs">
+      <DependentUpon>DislikedPostsPage.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\User\FavoritePostsPage.axaml.cs">
+      <DependentUpon>FavoritePostsPage.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\User\LikedPostsPage.axaml.cs">
+      <DependentUpon>LikedPostsPage.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\User\OwnCommentsPage.axaml.cs">
+      <DependentUpon>OwnCommentsPage.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\User\OwnPostsPage.axaml.cs">
+      <DependentUpon>OwnPostsPage.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\User\SettingsPage.axaml.cs">
+      <DependentUpon>SettingsPage.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Admin\AdminPanel.axaml.cs">
+      <DependentUpon>AdminPanel.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Admin\DeletePosts.axaml.cs">
+      <DependentUpon>DeletePosts.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Homepage\MainView.axaml.cs">
+      <DependentUpon>MainView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Homepage\MainWindow.axaml.cs">
+      <DependentUpon>MainWindow.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

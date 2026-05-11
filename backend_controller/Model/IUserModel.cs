@@ -12,6 +12,5 @@ namespace vizsgaController.Model
         // public Task GetUsage(string username);
         // public Task SetUsage(string username, int amount);
         public Task ModifyPassword(string username, string password, string currentpass);
-        public IEnumerable<UserDTO> GetUsers();
     }
 }

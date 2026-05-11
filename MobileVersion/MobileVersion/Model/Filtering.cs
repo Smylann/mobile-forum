@@ -1,11 +1,13 @@
-﻿using MobileVersion.Dtos;
-using MobileVersion.Models;
-using MobileVersion.ViewModels;
+﻿using MobileVersion.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using MobileVersion.DTOs;
+using MobileVersion.DTOs.Homepage;
+using PostVM = MobileVersion.ViewModels.Homepage.PostVM;
+using UserVM = MobileVersion.ViewModels.User.UserVM;
 
 namespace MobileVersion.Model
 {

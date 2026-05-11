@@ -1,5 +1,6 @@
-using MobileVersion.Dtos;
 using System.Collections.ObjectModel;
+using MobileVersion.DTOs;
+using MobileVersion.DTOs.PostInteractions;
 
 namespace MobileVersion.Messages
 {

@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using MobileVersion.Dtos;
+using MobileVersion.DTOs;
+using MobileVersion.DTOs.Homepage;
+using MobileVersion.DTOs.PostInteractions;
+using MobileVersion.DTOs.UserInterface;
 
-namespace MobileVersion.Models;
+namespace MobileVersion.Model;
 
 public enum VoteState { None, Upvoted, Downvoted }
 
@@ -168,4 +170,29 @@ public class consoleClientModel
      *                         *
      *                         *
      ***************************/
+    public async Task deleteUsers(int id)
+    {
+        var resp = await _httpClient.DeleteAsync($"api/news/delete_users?id={id}");
+        resp.EnsureSuccessStatusCode();
+    }
+    public async Task deletePosts(int id)
+    {
+        var resp = await _httpClient.DeleteAsync($"api/news/delete_posts?id={id}");
+        resp.EnsureSuccessStatusCode();
+    }
+    public async Task deleteComments(int id)
+    {
+        var resp = await _httpClient.DeleteAsync($"api/news/delete_comments?id={id}");
+        resp.EnsureSuccessStatusCode();
+    }
+    public async Task createCategory(CategoryDTO cat)
+    {
+        var resp = await _httpClient.PostAsJsonAsync($"api/news/create_category", cat);
+        resp.EnsureSuccessStatusCode();
+    }
+    public async Task deleteCategory(int id)
+    {
+        var resp = await _httpClient.DeleteAsync($"api/news/delete_category?id={id}");
+        resp.EnsureSuccessStatusCode();
+    }
 }

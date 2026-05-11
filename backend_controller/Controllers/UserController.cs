@@ -160,20 +160,6 @@ namespace vizsgaController.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-        [HttpGet("allusers")]
-
-        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllUsers()
-        {
-            try
-            {
-                return Ok(_model.GetUsers());
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-
-        }
+        
     }
 }

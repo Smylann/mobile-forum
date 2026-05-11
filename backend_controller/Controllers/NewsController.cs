@@ -10,13 +10,13 @@ namespace vizsgaController.Controllers
     [ApiController]
     public class NewsController : ControllerBase
     {
-
         private readonly INewsModel _model;
+
         public NewsController(INewsModel model)
         {
             _model = model;
         }
-        
+
         [HttpGet("getallusers")]
         public async Task<ActionResult<IEnumerable<DisplayAllUserDTO>>> GetAllUsers()
         {
@@ -33,6 +33,7 @@ namespace vizsgaController.Controllers
                 return BadRequest("Hiba történt");
             }
         }
+
         [HttpGet("getallposts")]
         public async Task<ActionResult<IEnumerable<DisplayAllPostsDTO>>> GetAllPosts()
         {
@@ -49,6 +50,7 @@ namespace vizsgaController.Controllers
                 return BadRequest("Hiba történt");
             }
         }
+
         [HttpGet("getallcats")]
         public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAllCats()
         {
@@ -65,6 +67,7 @@ namespace vizsgaController.Controllers
                 return BadRequest("Hiba történt");
             }
         }
+
         [HttpGet("search_user")]
         public async Task<ActionResult<IEnumerable<UsersBySearch>>> GetUserNameBySearch([FromQuery] string name)
         {
@@ -86,8 +89,10 @@ namespace vizsgaController.Controllers
                 return BadRequest("Hiba történt");
             }
         }
+
         [HttpGet("search_post")]
-        public async Task<ActionResult<IEnumerable<PostsBySearch>>> GetPostBySearchAndCat([FromQuery] string title, [FromQuery] string cat)
+        public async Task<ActionResult<IEnumerable<PostsBySearch>>> GetPostBySearchAndCat([FromQuery] string title,
+            [FromQuery] string cat)
         {
             try
             {
@@ -107,6 +112,7 @@ namespace vizsgaController.Controllers
                 return BadRequest("Hiba történt");
             }
         }
+
         [HttpGet("search_post_by_cat")]
         public async Task<ActionResult<IEnumerable<PostsByCat>>> GetPostByCat([FromQuery] string cat)
         {
@@ -194,6 +200,7 @@ namespace vizsgaController.Controllers
                 return BadRequest("Hiba történt");
             }
         }
+
         [HttpGet("postsfromowncomment")]
         public async Task<ActionResult<IEnumerable<PostsFromOwnComment>>> GetPostsFromOwnComments([FromQuery] int id)
         {
@@ -282,63 +289,7 @@ namespace vizsgaController.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("delete_users")]
-        public async Task<ActionResult> DeleteUsers([FromQuery] int id)
-        {
-            try
-            {
-                await _model.DeleteUsers(id);
-                return Ok("User managed successfully");
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (Exception e)
-            {
-                return BadRequest($"Hiba történt: {e.Message}");
-            }
-        }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPut("modify_user")]
-        public async Task<ActionResult> ModifyUser([FromBody]ModifyUserDTO userDto)
-        {
-            try
-            {
-                await _model.ModifyUsers(userDto);
-                return Ok("User modified successfully");
-            }
-            catch (ArgumentNullException ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (Exception e)
-            {
-                return BadRequest("Hiba történt");
-            }
-        }
         [Authorize]
         [HttpPost("create_posts")]
         public async Task<ActionResult> CreatePost([FromBody] PostDTO source)
@@ -380,29 +331,8 @@ namespace vizsgaController.Controllers
                 return BadRequest("Hiba történt");
             }
         }
-        
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("delete_posts")]
-        public async Task<ActionResult> DeletePosts([FromQuery] int id)
-        {
-            try
-            {
-                await _model.DeletePost(id);
-                return Ok("Post deleted successfully");
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (Exception e)
-            {
-                return BadRequest("Hiba történt");
-            }
-        }
+
+
         [Authorize]
         [HttpDelete("delete_own_post")]
         public async Task<ActionResult> DeleteOwnPost([FromQuery] DeleteOwnPostDTO dto)
@@ -412,7 +342,7 @@ namespace vizsgaController.Controllers
                 if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
                     return Unauthorized();
                 await _model.DeleteOwnPost(new DeleteOwnPostDTO { postid = dto.postid, userId = dto.userId });
-                return Ok("Your post has been deleted");    
+                return Ok("Your post has been deleted");
             }
             catch (KeyNotFoundException ex)
             {
@@ -427,6 +357,7 @@ namespace vizsgaController.Controllers
                 return BadRequest("Hiba történt");
             }
         }
+
         [Authorize]
         [HttpPost("favourite_posts")]
         public async Task<ActionResult> FavouritePosts([FromBody] FavouritePostDTO dto)
@@ -507,6 +438,155 @@ namespace vizsgaController.Controllers
                 return BadRequest("Hiba történt");
             }
         }
+
+
+        [HttpGet("ownreports")]
+        public async Task<ActionResult<IEnumerable<OwnReports>>> OwnReports([FromQuery] int id)
+        {
+            try
+            {
+                var reps = _model.GetOwnReports(id);
+                return Ok(reps);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest("Hiba történt");
+            }
+        }
+
+        [Authorize]
+        [HttpPost("create_report")]
+        public async Task<ActionResult> CreateRep([FromBody] ReportDTO source)
+        {
+            try
+            {
+                if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+                    return Unauthorized();
+                source.userID = userId;
+                await _model.CreateReport(source);
+                return Ok("Report submitted successfully");
+            }
+            catch (ArgumentNullException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest("Hiba történt");
+            }
+        }
+        [Authorize]
+        [HttpPut("modify_user")]
+        public async Task<ActionResult> ModifyUser([FromBody]ModifyUserDTO userDto)
+        {
+            try
+            {
+                await _model.ModifyUsers(userDto);
+                return Ok("User modified successfully");
+            }
+            catch (ArgumentNullException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest("Hiba történt");
+            }
+        }
+
+        /***************************
+         *                         *
+         *                         *
+         *       ADMIN APIs        *
+         *                         *
+         *                         *
+         ***************************/
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("delete_users")]
+        public async Task<ActionResult> DeleteUsers([FromQuery] int id)
+        {
+            try
+            {
+                await _model.DeleteUsers(id);
+                return Ok("User managed successfully");
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"Hiba történt: {e.Message}");
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("delete_posts")]
+        public async Task<ActionResult> DeletePosts([FromQuery] int id)
+        {
+            try
+            {
+                await _model.DeletePost(id);
+                return Ok("Post deleted successfully");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest("Hiba történt");
+            }
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpDelete("delete_comments")]
         public async Task<ActionResult> DeleteSelectedComment([FromQuery] int id)
@@ -573,65 +653,6 @@ namespace vizsgaController.Controllers
             catch (InvalidOperationException ex)
             {
                 return Conflict(ex.Message);
-            }
-            catch (Exception e)
-            {
-                return BadRequest("Hiba történt");
-            }
-        }
-        [HttpGet("ownreports")]
-        public async Task<ActionResult<IEnumerable<OwnReports>>> OwnReports([FromQuery] int id)
-        {
-            try
-            {
-                var reps = _model.GetOwnReports(id);
-                return Ok(reps);
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception e)
-            {
-                return BadRequest("Hiba történt");
-            }
-        }
-
-        [Authorize]
-        [HttpPost("create_report")]
-        public async Task<ActionResult> CreateRep([FromBody] ReportDTO source)
-        {
-            try
-            {
-                if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-                    return Unauthorized();
-                source.userID = userId;
-                await _model.CreateReport(source);
-                return Ok("Report submitted successfully");
-            }
-            catch (ArgumentNullException ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
-            catch (ArgumentOutOfRangeException ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Conflict(ex.Message);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
             }
             catch (Exception e)
             {
